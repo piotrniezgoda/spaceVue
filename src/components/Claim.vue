@@ -25,9 +25,17 @@ export default {
     margin: 0 0 25px;
     font-size: 4rem;
     text-transform: uppercase;
+
+    @media(min-width: 768px) {
+      font-size: 5.5rem;
+    }
   }
 
   .subclaim {
     font-size: 0.9rem;
+    font-weight: 300;
+    @media(min-width: 768px) {
+      font-size: 1.2rem;
+    }
   }
 </style>
