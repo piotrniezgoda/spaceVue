@@ -1,19 +1,35 @@
 <template>
-  <div class="app">
     <div :class="[{ flexStart: step === 1 }, 'wrapper']">
       <transition name="slide">
         <img src="./assets/logoSpacer.svg" class="app-logo" alt="" v-if="step === 1">
       </transition>
       <Claim v-if="step === 0" />
-      <SearchInput v-model="searchValue" :dark="step === 1" @input="handleInput"/>
+      <SearchInput
+      v-model="searchValue"
+      :dark="step === 1"
+      @input="handleInput"/>
       <transition name="fade">
         <HeroImage v-if="step === 0" />
       </transition>
       <div class="results" v-if="results && !loading && step === 1">
-        <item v-for="item in results" :item="item" :key="item.data[0].nasa_id" />
+        <item
+        v-for="item in results"
+        :item="item"
+        :key="item.data[0].nasa_id"
+        @click.native="handleModalOpen(item)" />
       </div>
+      <div class="lds-roller" v-if="step === 1 && loading">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      <Modal :item="modalItem" v-if="modalOpen" @closeModal="modalOpen = false" />
     </div>
-  </div>
 </template>
 
 <script>
@@ -23,6 +39,7 @@ import Claim from '@/components/Claim.vue';
 import SearchInput from '@/components/SearchInput.vue';
 import HeroImage from '@/components/HeroImage.vue';
 import Item from '@/components/Item.vue';
+import Modal from '@/components/Modal.vue';
 
 const API = 'https://images-api.nasa.gov/search';
 
@@ -34,7 +51,9 @@ export default {
       searchValue: '',
       results: [],
       loading: false,
+      modalOpen: false,
       step: 0,
+      modalItem: null,
     };
   },
 
@@ -43,6 +62,7 @@ export default {
     SearchInput,
     HeroImage,
     Item,
+    Modal,
   },
 
   methods: {
@@ -60,6 +80,10 @@ export default {
         });
     }, 500),
 
+    handleModalOpen(item) {
+      this.modalOpen = true;
+      this.modalItem = item;
+    },
   },
   props: {
     dark: {
@@ -67,7 +91,6 @@ export default {
       default: false,
     },
   },
-
 };
 </script>
 
@@ -148,13 +171,100 @@ export default {
   color: #000;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 20px;
-  width: 90%;
+  grid-gap: 10px;
+  width: 100%;
   margin-top: 80px;
 
   @media(min-width: 768px) {
     grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 20px;
+    width: 90%;
   }
+}
 
+.lds-roller {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-top: 40px;
+}
+.lds-roller div {
+  animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  transform-origin: 32px 32px;
+}
+.lds-roller div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(71, 71, 71);
+  margin: -3px 0 0 -3px;
+}
+.lds-roller div:nth-child(1) {
+  animation-delay: -0.036s;
+}
+.lds-roller div:nth-child(1):after {
+  top: 50px;
+  left: 50px;
+}
+.lds-roller div:nth-child(2) {
+  animation-delay: -0.072s;
+}
+.lds-roller div:nth-child(2):after {
+  top: 54px;
+  left: 45px;
+}
+.lds-roller div:nth-child(3) {
+  animation-delay: -0.108s;
+}
+.lds-roller div:nth-child(3):after {
+  top: 57px;
+  left: 39px;
+}
+.lds-roller div:nth-child(4) {
+  animation-delay: -0.144s;
+}
+.lds-roller div:nth-child(4):after {
+  top: 58px;
+  left: 32px;
+}
+.lds-roller div:nth-child(5) {
+  animation-delay: -0.18s;
+}
+.lds-roller div:nth-child(5):after {
+  top: 57px;
+  left: 25px;
+}
+.lds-roller div:nth-child(6) {
+  animation-delay: -0.216s;
+}
+.lds-roller div:nth-child(6):after {
+  top: 54px;
+  left: 19px;
+}
+.lds-roller div:nth-child(7) {
+  animation-delay: -0.252s;
+}
+.lds-roller div:nth-child(7):after {
+  top: 50px;
+  left: 14px;
+}
+.lds-roller div:nth-child(8) {
+  animation-delay: -0.288s;
+}
+.lds-roller div:nth-child(8):after {
+  top: 45px;
+  left: 10px;
+}
+@keyframes lds-roller {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>
