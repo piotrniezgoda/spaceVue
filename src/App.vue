@@ -1,7 +1,7 @@
 <template>
     <div :class="[{ flexStart: step === 1 }, 'wrapper']">
       <transition name="slide">
-        <img src="./assets/logoSpacer.svg" class="app-logo" alt="" v-if="step === 1">
+        <img src="./assets/logoSpacer.svg" class="app-logo" alt="" v-if="step === 1" @click="returnToStartPage">
       </transition>
       <Claim v-if="step === 0" />
       <SearchInput
@@ -28,7 +28,12 @@
         <div></div>
         <div></div>
       </div>
-      <Modal :item="modalItem" v-if="modalOpen" @closeModal="modalOpen = false" />
+      <transition name="modalFade">
+        <Modal :item="modalItem" v-if="modalOpen" @closeModal="modalOpen = false" />
+      </transition>
+      <transition name="modalBgFade">
+        <div v-if="modalOpen" class="darkModalBackground"></div>
+      </transition>
     </div>
 </template>
 
@@ -84,6 +89,15 @@ export default {
       this.modalOpen = true;
       this.modalItem = item;
     },
+
+    returnToStartPage() {
+      this.searchValue = '';
+      this.results = [];
+      this.loading = false;
+      this.modalOpen = false;
+      this.step = 0;
+      this.modalItem = null;
+    },
   },
   props: {
     dark: {
@@ -132,6 +146,14 @@ export default {
     top: 40px;
     left: 50%;
     transform: translateX(-50%);
+    transition: opacity 0.3s;
+    opacity: 0.80;
+    cursor: pointer;
+
+    &:hover {
+      transition: opacity 0.3s;
+      opacity: 1;
+    }
   }
 
   .nav {
@@ -161,11 +183,27 @@ export default {
 }
 
 .slide-enter-active, .slide-leave-active {
-  transition: margin-top .5s ease;
+  transition: margin-top .7s ease;
 }
 .slide-enter, .slide-leave-to {
-  margin-top: -50px;
+  margin-top: -70px;
 }
+
+.modalBgFade-enter-active, .modalBgFade-leave-active {
+  transition: opacity .6s ease;
+}
+.modalBgFade-enter, .modalBgFade-leave-to {
+  opacity: 0;
+}
+
+.modalFade-enter-active, .modalFade-leave-active {
+  transition: opacity .4s ease;
+}
+.modalFade-enter, .modalFade-leave-to {
+  opacity: 0;
+}
+
+
 
 .results {
   color: #000;
@@ -266,5 +304,16 @@ export default {
   100% {
     transform: rotate(360deg);
   }
+}
+
+
+.darkModalBackground {
+  width: 100%;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
 }
 </style>
