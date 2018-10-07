@@ -1,9 +1,17 @@
 <template>
   <div class="app">
-    <div class="search-wrapper">
+    <div :class="[{ flexStart: step === 1 }, 'wrapper']">
+      <transition name="slide">
+        <img src="./assets/logoSpacer.svg" class="app-logo" alt="" v-if="step === 1">
+      </transition>
       <Claim v-if="step === 0" />
       <SearchInput v-model="searchValue" :dark="step === 1" @input="handleInput"/>
-      <HeroImage v-if="step === 0" />
+      <transition name="fade">
+        <HeroImage v-if="step === 0" />
+      </transition>
+      <div class="results" v-if="results && !loading && step === 1">
+        <item v-for="item in results" :item="item" :key="item.data[0].nasa_id" />
+      </div>
     </div>
   </div>
 </template>
@@ -14,6 +22,7 @@ import debounce from 'lodash.debounce';
 import Claim from '@/components/Claim.vue';
 import SearchInput from '@/components/SearchInput.vue';
 import HeroImage from '@/components/HeroImage.vue';
+import Item from '@/components/Item.vue';
 
 const API = 'https://images-api.nasa.gov/search';
 
@@ -33,15 +42,18 @@ export default {
     Claim,
     SearchInput,
     HeroImage,
+    Item,
   },
 
   methods: {
     // eslint-disable-next-line
     handleInput: debounce(function () {
+      this.loading = true;
       axios.get(`${API}?q=${this.searchValue}&media_type=image`)
         .then((response) => {
           this.results = response.data.collection.items;
-          console.log(this.results);
+          this.loading = false;
+          this.step = 1;
         })
         .catch((error) => {
           console.log(error);
@@ -76,7 +88,7 @@ export default {
     color: #fff;
   }
 
-  .search-wrapper {
+  .wrapper {
     width: 100%;
     height: 100vh;
     margin: 0;
@@ -85,6 +97,18 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
+
+    &.flexStart {
+      justify-content: flex-start
+    }
+  }
+
+  .app-logo {
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .nav {
@@ -105,4 +129,32 @@ export default {
     font-size: 1.1rem;
     text-transform: uppercase;
   }
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s ease;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+
+.slide-enter-active, .slide-leave-active {
+  transition: margin-top .5s ease;
+}
+.slide-enter, .slide-leave-to {
+  margin-top: -50px;
+}
+
+.results {
+  color: #000;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 20px;
+  width: 90%;
+  margin-top: 80px;
+
+  @media(min-width: 768px) {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+}
 </style>
