@@ -127,7 +127,7 @@ export default {
 
   .wrapper {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     padding: 30px;
     display: flex;
